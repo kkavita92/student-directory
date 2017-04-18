@@ -1,4 +1,4 @@
-COHORTS = [:january, :february, :march, :april, :may, :june, :july, :august, :september, :october, :november, :december]
+COHORTS = [:january, :february, :march, :april, :may, :june, :july, :august, :september, :october, :november, :december,"unknown"]
 
 def input_students
   puts "Please enter the names of the students"
@@ -20,7 +20,7 @@ def get_cohort(name) #get cohort as input
     @students << {name: name, cohort: @cohort.downcase.to_sym}
   else
     puts "Incorrect input. We will assume cohort is unknown."
-    @students << {name: name, cohort: "Unknown"}
+    @students << {name: name, cohort: "unknown"}
   end
 end
 
@@ -50,7 +50,7 @@ def print_by_cohort(names)
       end
     end
     puts "(#{spec_cohort.size.to_s})".center(75) #prints people in each cohort
-    puts #spacing between output of each cohort 
+    puts #spacing between output of each cohort
   end
 end
 
