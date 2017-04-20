@@ -1,5 +1,6 @@
-COHORTS = [:january, :february, :march, :april, :may, :june, :july, :august, :september, :october, :november, :december,"unknown"]
+COHORTS = [:january, :february, :march, :april, :may, :june, :july, :august, :september, :october, :november, :december,:unknown]
 @students = []
+require 'csv'
 
 def print_menu
   puts "1. Input the students"
@@ -12,19 +13,22 @@ end
 def interactive_menu
   loop do
     print_menu
-    process(gets.chomp) #argument is whatever user inputs
+    process(STDIN.gets.chomp) #argument is whatever user inputs
   end
 end
 
 def process(selection)
   case selection
   when "1"
-    students = input_students
+    puts "You have chosen to input students' details"
+    input_students
   when "2"
-    print_output
+    puts "You have chosen to display student details"
+    show_students
   when "3"
-    save_students
+    puts "You have chosen to save the list of students to file"
   when "4"
+    puts "You have chosen to load the list of students from file"
     load_students
   when "9"
   else
@@ -33,44 +37,74 @@ def process(selection)
 end
 
 def save_students
-  file = File.open("students.csv","w")
-  @students.each do |student|
-    student_data = [student[:name],student[:cohort]]
-    csv_line = student_data.join(",")
-    file.puts csv_line
+  puts "Which file would you like to save to?" #ask for file name
+  choose_file
+  CSV.open(filename,"w") do |csv| #writing to a file
+    @students.each do |student|
+      csv << [student[:name],student[:cohort]] #forms one row in file
+    end
   end
-    file.close
+  puts "#{filename} saved"
 end
 
-def load_students
-  file = File.open("students.csv","r") #read-only
-  file.readlines.each do |line|
-    name,cohort = line.chomp.split(',')
-    @students << {name: name, cohort: cohort.to_sym}
+def load_students #using file name as an argument
+  puts "Which file would you like to load?"
+  choose_file
+  CSV.foreach(filename,"r") do |row|
+    row.readlines.each do |line|
+      name,cohort = line.chomp.split(',')
+      add_students(name,cohort)
+    end
   end
-  file.close
+  puts "#{filename} loaded"
+end
+
+def choose_file
+  puts "Select D for default option"
+  filename = STDIN.gets.chomp
+  until filename != ""
+    puts "You need to enter something!"
+    filename = STDIN.gets.chomp
+  end
+  filename == 'D' ? filename = "students.csv" : filename #assign default option
+end
+
+def try_load_students
+  filename = ARGV.first #get first argument
+  filename ||= students.csv #if no argument given and filename is nil - set as default
+  if File.exists?(filename) #if file name given, does it exist?
+    load_students(filename)
+    puts "Loaded #{@students.count} from #{filename}"
+  else
+    puts "Sorry, #{filename} doesn't exist."
+    exit #quit programme
+  end
 end
 
 def input_students
   puts "Please enter the names of the students"
   puts "To finish, just hit return twice"
-  name = gets.chomp #get the first name
+  name = STDIN.gets.chomp #get the first name
   while !name.empty? do
     get_cohort(name)
     singular
-    name = gets.chomp #get another name from user
+    name = STDIN.gets.chomp #get another name from user
   end
 end
 
 def get_cohort(name) #get cohort as input
   puts "Which cohort is #{name} from?"
-  cohort = gets.chomp
+  cohort = STDIN.gets.chomp
   if COHORTS.include?(cohort.downcase.to_sym)
-    @students << {name: name, cohort: cohort.downcase.to_sym}
+    add_students(name,cohort)
   else
     puts "Incorrect input. We will assume cohort is unknown."
-    @students << {name: name, cohort: "unknown"}
+    add_students(name,"unknown")
   end
+end
+
+def add_students(name,cohort)
+  @students << {name: name, cohort: cohort.downcase.to_sym}
 end
 
 def singular
@@ -103,17 +137,11 @@ def print_students_by_cohort
   end
 end
 
-def print_with_index
-    @students.each_with_index do |student,index|
-      puts "#{index+1}. #{student[:name]} (#{student[:cohort]} cohort)"
-    end
-end
-
 def print_footer
   puts "Overall, we have #{@students.count} great students.".center(75)
 end
 
-def print_output
+def show_students
   if @students.empty?
     puts "No input provided!"
   else
@@ -123,4 +151,5 @@ def print_output
   end
 end
 
+try_load_students
 interactive_menu
