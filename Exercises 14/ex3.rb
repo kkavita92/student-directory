@@ -21,10 +21,10 @@ def process(selection)
   case selection
   when "1"
     puts "You have chosen to input students' details"
-    students = input_students
+    input_students
   when "2"
     puts "You have chosen to display student details"
-    print_output
+    show_students
   when "3"
     puts "You have chosen to save the list of students to file"
   when "4"
@@ -141,7 +141,7 @@ def print_footer
   puts "Overall, we have #{@students.count} great students.".center(75)
 end
 
-def print_output
+def show_students
   if @students.empty?
     puts "No input provided!"
   else
