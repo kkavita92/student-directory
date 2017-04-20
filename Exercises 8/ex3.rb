@@ -17,12 +17,12 @@ def print_header
 end
 
 def print_with_index(names)
-  filter_by(names).each_with_index do |student,index|
+  filter_by_length(names).each_with_index do |student,index|
       puts "#{index+1}. #{student[:name]} (#{student[:cohort]} cohort)"
   end
 end
 
-def filter_by(names) #filter for names with less than 12 characters
+def filter_by_length(names) #filter for names with less than 12 characters
   names.select {|student| student[:name].length < 12}
 end
 
